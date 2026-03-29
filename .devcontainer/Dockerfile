@@ -31,8 +31,8 @@ RUN groupadd --gid 1000 vscode \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN echo "==> Setting up Python environment..." && \
-    uv venv $VIRTUAL_ENV -q && \
-    uv pip install --no-cache -q west
+    uv venv $VIRTUAL_ENV --python3.13 -q && \
+    uv pip install --no-cache -q west jsonschema
 
 RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     wget --show-progress --progress=bar:force:noscroll -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz" && \
