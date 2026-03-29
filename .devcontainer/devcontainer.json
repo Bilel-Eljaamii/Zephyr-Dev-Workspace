@@ -1,0 +1,40 @@
+{
+    "name": "Zephyr Dev Environment",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "C_Cpp.default.compilerPath": "/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
+                "C_Cpp.default.cStandard": "c11",
+                "C_Cpp.default.cppStandard": "c++20",
+                "C_Cpp.default.intelliSenseMode": "linux-gcc-arm",
+                "cmake.configureOnOpen": false,
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "workbench.colorTheme": "Default Dark Modern",
+                "security.workspace.trust.enabled": false
+            },
+            "extensions": [
+                "zephyr-project.zephyr-ide",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "trond-snekvik.devicetree",
+                "trond-snekvik.kconfig",
+                "trond-snekvik.gnu-mapfiles",
+                "marus25.cortex-debug",
+                "mcu-debug.debug-tracker-vscode",
+                "wokwi.wokwi-vscode",
+                "antmicro.renode",
+                "esbenp.prettier-vscode"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "runArgs": [
+        "--privileged",
+        "-v", "/dev/bus/usb:/dev/bus/usb"
+  ]
+}
