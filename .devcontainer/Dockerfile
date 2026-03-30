@@ -32,7 +32,7 @@ RUN groupadd --gid 1000 vscode \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN echo "==> Setting up Python environment..." && \
-    uv venv $VIRTUAL_ENV --python3.13 -q && \
+    uv venv $VIRTUAL_ENV --python 3.13 -q && \
     uv pip install --no-cache -q west jsonschema
 
 RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
