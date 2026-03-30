@@ -17,7 +17,8 @@ RUN echo "==> Installing system dependencies..." && \
     sudo git cmake ninja-build gperf \
     ccache dfu-util device-tree-compiler wget \
     python3 python3-venv htop \
-    xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev build-essential \
+    xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev \
+    build-essential gdb tree \
     usbutils udev ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
