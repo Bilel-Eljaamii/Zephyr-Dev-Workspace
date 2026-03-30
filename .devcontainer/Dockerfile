@@ -34,6 +34,17 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 RUN echo "==> Setting up Python environment..." && \
     uv venv $VIRTUAL_ENV --python 3.13 -q && \
     uv pip install --no-cache -q west jsonschema
+    uv pip install pyelftools>=0.29 PyYAML>=6.0 pykwalify \
+    canopen packaging progress "patool>=2.0.0" "psutil>=5.6.6" \
+    pylink-square pyserial "requests>=2.32.0" semver "tqdm>=4.67.1" \
+    reuse anytree intelhex "west>=0.14.0" "windows-curses; sys_platform == 'win32'" \
+    colorama "ply>=3.10" "gcovr>=6.0" coverage pytest mypy "mock>=4.0.1" \
+    junitparser "pyocd>=0.35.0" tabulate natsort "cbor>=1.0.0" "python-can>=4.3.0" \
+    spdx-tools "gitpython>=3.1.41" gitlint junit2html lpc_checksum "spsdk==2.6.0" \
+    "Pillow>=10.3.0" PyGithub graphviz "clang-format>=15.0.0" "junitparser>=2" "lxml>=5.3.0" \
+    "pylint>=3" "python-magic-bin; sys_platform == 'win32'" "python-magic; sys_platform != 'win32'" \
+    ruff==0.11.11 sphinx-lint unidiff vermin yamllint
+
 
 RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     wget --show-progress --progress=bar:force:noscroll -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz" && \
