@@ -45,18 +45,30 @@ RUN echo "==> Setting up Python environment..." && \
     "pylint>=3" "python-magic-bin; sys_platform == 'win32'" "python-magic; sys_platform != 'win32'" \
     ruff==0.11.11 sphinx-lint unidiff vermin yamllint
 
-
 RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
-    wget --show-progress --progress=bar:force:noscroll -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64_gnu.tar.xz" && \
+    # Handle dynamic URL naming (v1.x uses _gnu, v0.x does not)
+    if [ "$(printf '%s\n' "1.0.0" "$ZEPHYR_SDK_VERSION" | sort -V | head -n1)" = "1.0.0" ]; then \
+        SDK_SUFFIX="_linux-x86_64_gnu.tar.xz"; \
+    else \
+        SDK_SUFFIX="_linux-x86_64.tar.xz"; \
+    fi && \
+    wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX}" && \
+    \
     echo "==> Extracting SDK..." && \
-    tar -xJf zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64_gnu.tar.xz -C /opt/ && \
-    rm zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64_gnu.tar.xz && \
+    tar -xJf zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} -C /opt/ && \
+    rm zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} && \
     mv /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION} ${ZEPHYR_SDK_INSTALL_DIR} && \
+    \
     echo "==> Running Zephyr SDK Setup..." && \
     cd ${ZEPHYR_SDK_INSTALL_DIR} && \
     ./setup.sh -t arm-zephyr-eabi -h -c > /dev/null && \
+    \
+    # Handle dynamic udev rules path
     mkdir -p /etc/udev/rules.d/ && \
-    cp -r ${ZEPHYR_SDK_INSTALL_DIR}/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d/
+    RULES_PATH=$(find ${ZEPHYR_SDK_INSTALL_DIR} -name "60-openocd.rules" | head -n 1) && \
+    if [ -n "$RULES_PATH" ]; then \
+        cp "$RULES_PATH" /etc/udev/rules.d/; \
+    fi
 
 # 5. Fix Permissions so 'vscode' can use the tools in /opt
 RUN chown -R vscode:vscode /opt/zephyr-sdk /opt/zephyr-venv
