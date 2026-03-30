@@ -17,6 +17,7 @@
             },
             "extensions": [
                 "zephyr-project.zephyr-ide",
+                "Ac6.zephyr-workbench",
                 "ms-vscode.cpptools",
                 "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cmake-tools",
