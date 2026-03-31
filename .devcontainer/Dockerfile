@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     UV_LINK_MODE=copy \
     ZEPHYR_SDK_VERSION=1.0.1 \
     ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk \
-    VIRTUAL_ENV=/opt/zephyr-venv
+    VIRTUAL_ENV=/opt/zephyr-venv \
     UV_PYTHON_INSTALL_DIR=/opt/uv-python
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
