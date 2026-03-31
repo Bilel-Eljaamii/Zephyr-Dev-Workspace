@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ZEPHYR_SDK_VERSION=1.0.1 \
     ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk \
     VIRTUAL_ENV=/opt/zephyr-venv
+    UV_PYTHON_INSTALL_DIR=/opt/uv-python
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # 2. Install System Dependencies + Sudo (As Root)
@@ -32,7 +33,8 @@ RUN groupadd --gid 1000 vscode \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN echo "==> Setting up Python environment..." && \
-    uv venv $VIRTUAL_ENV --python 3.13 -q && \
+    mkdir -p $UV_PYTHON_INSTALL_DIR && \
+    uv venv $VIRTUAL_ENV --python 3.13 --seed -q && \
     uv pip install --no-cache -q west jsonschema \
     pyelftools>=0.29 PyYAML>=6.0 pykwalify \
     canopen packaging progress "patool>=2.0.0" "psutil>=5.6.6" \
@@ -71,7 +73,7 @@ RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     fi
 
 # 5. Fix Permissions so 'vscode' can use the tools in /opt
-RUN chown -R vscode:vscode /opt/zephyr-sdk /opt/zephyr-venv
+RUN chown -R vscode:vscode /opt/zephyr-sdk /opt/zephyr-venv /opt/uv-python
 
 # 6. Final Config
 RUN usermod -aG dialout,plugdev vscode
