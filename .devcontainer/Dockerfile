@@ -1,7 +1,7 @@
-ARG ZEPHYR_SDK_VERSION="0.17.4"
 FROM debian:bookworm-slim
 
 # 1. Setup Environment Variables (Keep as Root)
+ARG ZEPHYR_SDK_VERSION="0.17.4"
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     CCACHE_DIR=/workspaces/.ccache \
@@ -53,7 +53,7 @@ RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX}" && \
     \
     echo "==> Extracting SDK..." && \
-    tar -xJf zephyr-sdk-${ZEYR_SDK_VERSION}${SDK_SUFFIX} -C /opt/ && \
+    tar -xJf zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} -C /opt/ && \
     rm zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} && \
     mv /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION} ${ZEPHYR_SDK_INSTALL_DIR}
 
