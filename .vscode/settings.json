@@ -1,0 +1,26 @@
+{
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.formatOnSave": true,
+    "C_Cpp.clang_format_fallbackStyle": "Google",
+    "C_Cpp.clang_format_style": "file",
+    "files.associations": {
+        "*.overlay": "dts",
+        "*.conf": "kconfig",
+        "Kconfig*": "kconfig"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "build/": true,
+        ".west/": true
+    },
+    "search.exclude": {
+        "**/build": true,
+        "**/zephyr": true,
+        "**/modules": true
+    }
+}

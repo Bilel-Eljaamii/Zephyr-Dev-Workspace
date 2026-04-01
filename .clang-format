@@ -1,0 +1,61 @@
+# Zephyr/Linux Kernel Style for Clang-Format
+BasedOnStyle: LLVM
+
+# Indentation and Whitespace
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+ContinuationIndentWidth: 8
+
+# Braces and Layout
+BreakBeforeBraces: Linux
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
+IndentCaseLabels: false
+
+# Line Length and Alignment
+ColumnLimit: 100
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Left
+
+# Space Management
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInContainerLiterals: false
+
+# Macro and Attribute Handling (Zephyr Specific)
+StatementMacros:
+  - 'K_ITER_TOP'
+  - 'K_SPINLOCK'
+  - 'FOR_EACH'
+  - 'FOR_EACH_NONEMPTY_TERM'
+  - 'DT_FOREACH_CHILD'
+  - 'DT_FOREACH_STATUS_OKAY'
+
+TypenameMacros:
+  - 'LISTIFY'
+  - 'Z_GEN_ASSERT'
+
+# Include Sorting Configuration
+SortIncludes: true
+IncludeBlocks: Regroup
+
+IncludeCategories:
+  # 1. Zephyr and Kernel Headers (e.g., <zephyr/kernel.h>)
+  - Regex:           '^(<zephyr/.*>)'
+    Priority:        1
+
+  # 2. Main Header (the header file for the current .c file)
+  - Regex:           '^"(.*)\.h"'
+    Priority:        2
+
+  # 3. SOC/Hardware specific headers (e.g., <soc/esp32c6/...)
+  - Regex:           '^(<soc/.*>|<hal/.*>|<esp_.*>)'
+    Priority:        3
+
+  # 4. Standard C Libraries (e.g., <stdio.h>, <stdint.h>)
+  - Regex:           '^(<.*\.h>|<.*>)'
+    Priority:        4

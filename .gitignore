@@ -40,6 +40,14 @@
 # debug information files
 *.dwo
 
-# West files
-.west
-deps
+# Zephyr/West folders
+build/
+deps/
+.west/
+zephyr/
+modules/
+bootloader/
+
+# VS Code specific
+.vscode/*.log
+.vscode/ipch/
