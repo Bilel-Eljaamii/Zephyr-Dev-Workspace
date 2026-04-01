@@ -39,6 +39,6 @@
     "remoteUser": "vscode",
     "runArgs": [
         "--privileged",
-        "-v", "/dev/bus/usb:/dev/bus/usb"
+        "-v", "/dev:/dev"
   ]
 }
