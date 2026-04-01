@@ -28,7 +28,7 @@ jobs:
             ccache dfu-util device-tree-compiler wget \
             python3 python3-venv xz-utils file make \
             gcc gcc-multilib g++-multilib libsdl2-dev \
-            build-essential ca-certificates
+            build-essential ca-certificates curl
           
       - name: Install uv
         run: |
