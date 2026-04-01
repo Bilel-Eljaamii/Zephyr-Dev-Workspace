@@ -1,4 +1,3 @@
-west
 jsonschema
 pyelftools>=0.29
 PyYAML>=6.0
@@ -16,8 +15,8 @@ tqdm>=4.67.1
 reuse
 anytree
 intelhex
-"west>=0.14.0"
-"windows-curses; sys_platform == 'win32'"
+west>=0.14.0
+windows-curses; sys_platform == 'win32'
 colorama
 ply>=3.10
 gcovr>=6.0
