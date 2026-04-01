@@ -1,3 +1,4 @@
+ARG ZEPHYR_SDK_VERSION="0.17.4"
 FROM debian:bookworm-slim
 
 # 1. Setup Environment Variables (Keep as Root)
@@ -5,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     CCACHE_DIR=/workspaces/.ccache \
     UV_LINK_MODE=copy \
-    ZEPHYR_SDK_VERSION=0.17.4\
+    ZEPHYR_SDK_VERSION=${ZEPHYR_SDK_VERSION}\
     ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk \
     VIRTUAL_ENV=/opt/zephyr-venv \
     UV_PYTHON_INSTALL_DIR=/opt/uv-python
@@ -34,18 +35,13 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN echo "==> Setting up Python environment..." && \
     mkdir -p $UV_PYTHON_INSTALL_DIR && \
-    uv venv $VIRTUAL_ENV --python 3.13 --seed -q && \
-    uv pip install --no-cache -q west jsonschema \
-    pyelftools>=0.29 PyYAML>=6.0 pykwalify \
-    canopen packaging progress "patool>=2.0.0" "psutil>=5.6.6" \
-    pylink-square pyserial "requests>=2.32.0" semver "tqdm>=4.67.1" \
-    reuse anytree intelhex "west>=0.14.0" "windows-curses; sys_platform == 'win32'" \
-    colorama "ply>=3.10" "gcovr>=6.0" coverage pytest mypy "mock>=4.0.1" \
-    junitparser "pyocd>=0.35.0" tabulate natsort "cbor>=1.0.0" "python-can>=4.3.0" \
-    spdx-tools "gitpython>=3.1.41" gitlint junit2html lpc_checksum "spsdk==2.6.0" \
-    "Pillow>=10.3.0" PyGithub graphviz "clang-format>=15.0.0" "junitparser>=2" "lxml>=5.3.0" \
-    "pylint>=3" "python-magic-bin; sys_platform == 'win32'" "python-magic; sys_platform != 'win32'" \
-    ruff==0.11.11 sphinx-lint unidiff vermin yamllint
+    uv venv $VIRTUAL_ENV --python 3.13 --seed -q
+
+WORKDIR /workspaces/.devcontainer
+COPY devcontainer-requirements.txt .
+RUN echo "==> Installing Python dependencies..." && \
+    uv pip install --no-cache -q -r devcontainer-requirements.txt
+WORKDIR /workspaces
 
 RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     # Handle dynamic URL naming (v1.x uses _gnu, v0.x does not)
@@ -57,15 +53,15 @@ RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX}" && \
     \
     echo "==> Extracting SDK..." && \
-    tar -xJf zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} -C /opt/ && \
+    tar -xJf zephyr-sdk-${ZEYR_SDK_VERSION}${SDK_SUFFIX} -C /opt/ && \
     rm zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} && \
-    mv /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION} ${ZEPHYR_SDK_INSTALL_DIR} && \
-    \
-    echo "==> Running Zephyr SDK Setup..." && \
+    mv /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION} ${ZEPHYR_SDK_INSTALL_DIR}
+
+RUN echo "==> Running Zephyr SDK Setup..." && \
     cd ${ZEPHYR_SDK_INSTALL_DIR} && \
-    ./setup.sh -t arm-zephyr-eabi -h -c > /dev/null && \
-    \
-    # Handle dynamic udev rules path
+    ./setup.sh -t arm-zephyr-eabi -h -c > /dev/null
+
+RUN echo "==> Handle dynamic udev rules path .." && \
     mkdir -p /etc/udev/rules.d/ && \
     RULES_PATH=$(find ${ZEPHYR_SDK_INSTALL_DIR} -name "60-openocd.rules" | head -n 1) && \
     if [ -n "$RULES_PATH" ]; then \

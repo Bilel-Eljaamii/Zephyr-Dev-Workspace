@@ -1,19 +1,22 @@
 {
     "name": "Zephyr Dev Environment",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "args": { 
+            "ZEPHYR_SDK_VERSION": "0.17.4"
+        }
     },
     "customizations": {
         "vscode": {
             "settings": {
                 "C_Cpp.default.compilerPath": "/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
                 "C_Cpp.default.cStandard": "c11",
-                "C_Cpp.default.cppStandard": "c++20",
+                "C_Cpp.default.cppStandard": "c++23",
                 "C_Cpp.default.intelliSenseMode": "linux-gcc-arm",
                 "cmake.configureOnOpen": false,
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "workbench.colorTheme": "Default Dark Modern",
-                "security.workspace.trust.enabled": false
+                "security.workspace.trust.enabled": true
             },
             "extensions": [
                 "zephyr-project.zephyr-ide",
