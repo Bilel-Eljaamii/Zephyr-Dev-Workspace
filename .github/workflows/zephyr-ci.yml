@@ -56,25 +56,31 @@ jobs:
           ./setup.sh -t riscv64-zephyr-elf -h -c
 
       - name: Initialize Zephyr Project
+        working-directory: workspace
         run: |
-          cd workspace
+          # Create venv and install west
           uv venv .venv --python 3.13
-          source .venv/bin/activate
           uv pip install west
-          west init -l .
-          west update --narrow -o=--depth=1
-          west zephyr-export
-          # Fetch Espressif binary blobs for ESP32-C6
-          west blobs fetch hal_espressif
+          
+          # Use 'uv run' to execute west within the venv context
+          uv run west init -l .
+          uv run west update --narrow -o=--depth=1
+          uv run west zephyr-export
+          
+          # Fetch Espressif binary blobs
+          uv run west blobs fetch hal_espressif
+          
+          # Install requirements
           uv pip install -r zephyr/scripts/requirements.txt
 
       - name: Build Samples (Verification)
+        working-directory: workspace
+        env:
+          ZEPHYR_SDK_INSTALL_DIR: /opt/zephyr-sdk
+          ZEPHYR_TOOLCHAIN_VARIANT: zephyr
         run: |
-          cd workspace
-          source .venv/bin/activate
-          export ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk
-          export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-          # Verify native simulation
-          west build -b native_sim zephyr/samples/hello_world -d build_native
-          # Verify ESP32-C6 Build
-          west build -b esp32c6_devkitc/esp32c6/hpcore zephyr/samples/hello_world -d build_esp32c6
+          # Build for Native Sim
+          uv run west build -b native_sim zephyr/samples/hello_world -d build_native
+          
+          # Build for ESP32-C6
+          uv run west build -b esp32c6_devkitc/esp32c6/hpcore zephyr/samples/hello_world -d build_esp32c6
