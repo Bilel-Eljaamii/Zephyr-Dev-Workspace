@@ -1,0 +1,76 @@
+name: Zephyr CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm-slim
+      options: --user root
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: workspace
+
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git cmake ninja-build gperf \
+            ccache dfu-util device-tree-compiler wget \
+            python3 python3-venv xz-utils file make \
+            gcc gcc-multilib g++-multilib libsdl2-dev \
+            build-essential ca-certificates
+          
+      - name: Install uv
+        run: |
+          id
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Zephyr SDK
+        id: cache-zephyr-sdk
+        uses: actions/cache@v4
+        with:
+          path: /opt/zephyr-sdk
+          key: zephyr-sdk-0.17.4
+
+      - name: Download Zephyr SDK
+        if: steps.cache-zephyr-sdk.outputs.cache-hit != 'true'
+        run: |
+          SDK_VERSION="0.17.4"
+          SDK_SUFFIX="_linux-x86_64.tar.xz"
+          wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK_VERSION}/zephyr-sdk-${SDK_VERSION}${SDK_SUFFIX}"
+          tar -xJf zephyr-sdk-${SDK_VERSION}${SDK_SUFFIX} -C /opt/
+          mv /opt/zephyr-sdk-${SDK_VERSION} /opt/zephyr-sdk
+          cd /opt/zephyr-sdk
+          ./setup.sh -t arm-zephyr-eabi -h -c
+
+      - name: Initialize Zephyr Project
+        run: |
+          cd workspace
+          uv venv .venv --python 3.13
+          source .venv/bin/activate
+          uv pip install west
+          west init -l .
+          west update --narrow -o=--depth=1
+          west zephyr-export
+          uv pip install -r zephyr/scripts/requirements.txt
+          uv pip install -r .devcontainer/devcontainer-requirements.txt
+
+      - name: Build Samples (Verification)
+        run: |
+          cd workspace
+          source .venv/bin/activate
+          export ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk
+          export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+          west build -b native_sim zephyr/samples/hello_world -d build_hello_world
+          west build -b native_sim zephyr/samples/cpp/hello_world -d build_cpp_hello_world
