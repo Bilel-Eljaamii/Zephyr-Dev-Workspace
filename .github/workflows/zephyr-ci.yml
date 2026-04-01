@@ -47,12 +47,13 @@ jobs:
         if: steps.cache-zephyr-sdk.outputs.cache-hit != 'true'
         run: |
           SDK_VERSION="0.17.4"
-          SDK_SUFFIX="_linux-x86_64.tar.xz"
-          wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK_VERSION}/zephyr-sdk-${SDK_VERSION}${SDK_SUFFIX}"
-          tar -xJf zephyr-sdk-${SDK_VERSION}${SDK_SUFFIX} -C /opt/
+          # Use minimal to save time; ESP32-C6 needs RISC-V
+          wget -q https://github.com{SDK_VERSION}/zephyr-sdk-${SDK_VERSION}_linux-x86_64_minimal.tar.xz
+          tar -xJf zephyr-sdk-${SDK_VERSION}_linux-x86_64_minimal.tar.xz -C /opt/
           mv /opt/zephyr-sdk-${SDK_VERSION} /opt/zephyr-sdk
           cd /opt/zephyr-sdk
-          ./setup.sh -t arm-zephyr-eabi -h -c
+          # Install RISC-V for ESP32-C6 and Host tools
+          ./setup.sh -t riscv64-zephyr-elf -h -c
 
       - name: Initialize Zephyr Project
         run: |
@@ -63,8 +64,9 @@ jobs:
           west init -l .
           west update --narrow -o=--depth=1
           west zephyr-export
+          # Fetch Espressif binary blobs for ESP32-C6
+          west blobs fetch hal_espressif
           uv pip install -r zephyr/scripts/requirements.txt
-          uv pip install -r .devcontainer/devcontainer-requirements.txt
 
       - name: Build Samples (Verification)
         run: |
@@ -72,5 +74,7 @@ jobs:
           source .venv/bin/activate
           export ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk
           export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-          west build -b native_sim zephyr/samples/hello_world -d build_hello_world
-          west build -b native_sim zephyr/samples/cpp/hello_world -d build_cpp_hello_world
+          # Verify native simulation
+          west build -b native_sim zephyr/samples/hello_world -d build_native
+          # Verify ESP32-C6 Build
+          west build -b esp32c6_devkitc/esp32c6/hpcore zephyr/samples/hello_world -d build_esp32c6
