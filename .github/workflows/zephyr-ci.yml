@@ -63,7 +63,7 @@ jobs:
           uv pip install west jsonschema
           
           # Init using Zephyr's official manifest
-          uv run west init -m https://github.com/zephyrproject-rtos/zephyr --mr main .
+          uv run west init -m https://github.com/zephyrproject-rtos/zephyr --mr v4.2.2  .
           uv run west update --narrow -o=--depth=1
           uv run west zephyr-export
           
