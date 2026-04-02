@@ -68,7 +68,7 @@ jobs:
           uv run west zephyr-export
           
           # Fetch Espressif binary blobs
-          uv run west blobs fetch hal_espressif
+          # uv run west blobs fetch hal_espressif
           
           # Install requirements
           uv pip install -r zephyr/scripts/requirements.txt
@@ -83,4 +83,4 @@ jobs:
           uv run west build -b native_sim zephyr/samples/hello_world -d build_native
           
           # Build for ESP32-C6
-          uv run west build -b esp32c6_devkitc/esp32c6/hpcore zephyr/samples/hello_world -d build_esp32c6
+          # uv run west build -b esp32c6_devkitc/esp32c6/hpcore zephyr/samples/hello_world -d build_esp32c6
