@@ -38,24 +38,32 @@ RUN echo "==> Setting up Python environment..." && \
     uv venv $VIRTUAL_ENV --python 3.13 --seed -q
 
 WORKDIR /workspaces/.devcontainer
-COPY devcontainer-requirements.txt .
+COPY pyproject.toml uv.lock ./
 RUN echo "==> Installing Python dependencies..." && \
-    uv pip install --no-cache -q -r devcontainer-requirements.txt
+    uv sync --frozen --no-install-project -q
 WORKDIR /workspaces
 
 RUN echo "==> Downloading Zephyr SDK v${ZEPHYR_SDK_VERSION}..." && \
     # Handle dynamic URL naming (v1.x uses _gnu, v0.x does not)
     if [ "$(printf '%s\n' "1.0.0" "$ZEPHYR_SDK_VERSION" | sort -V | head -n1)" = "1.0.0" ]; then \
-        SDK_SUFFIX="_linux-x86_64_gnu.tar.xz"; \
+        SDK_SUFFIX="_linux-x86_64_gnu_minimal.tar.xz"; \
+        TC_SUFFIX="_linux-x86_64_arm-zephyr-eabi_gnu.tar.xz"; \
     else \
-        SDK_SUFFIX="_linux-x86_64.tar.xz"; \
+        SDK_SUFFIX="_linux-x86_64_minimal.tar.xz"; \
+        TC_SUFFIX="_linux-x86_64_arm-zephyr-eabi.tar.xz"; \
     fi && \
     wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX}" && \
     \
     echo "==> Extracting SDK..." && \
     tar -xJf zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} -C /opt/ && \
     rm zephyr-sdk-${ZEPHYR_SDK_VERSION}${SDK_SUFFIX} && \
-    mv /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION} ${ZEPHYR_SDK_INSTALL_DIR}
+    mv /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION} ${ZEPHYR_SDK_INSTALL_DIR} && \
+    \
+    echo "==> Downloading and extracting ARM Toolchain..." && \
+    cd ${ZEPHYR_SDK_INSTALL_DIR} && \
+    wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/toolchain${TC_SUFFIX}" && \
+    tar -xJf toolchain${TC_SUFFIX} && \
+    rm toolchain${TC_SUFFIX}
 
 RUN echo "==> Running Zephyr SDK Setup..." && \
     cd ${ZEPHYR_SDK_INSTALL_DIR} && \
